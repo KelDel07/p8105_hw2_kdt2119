@@ -1,0 +1,97 @@
+---
+title: "Homework 1"
+author: "Kelvin Delali Tamakloe"
+date: 09/29/2021
+output: github_document
+---
+
+Load the tidyverse library.
+
+```{r setup}
+library(tidyverse)
+```
+
+## Problem 1
+
+The code chunk below produces a data frame that includes:
+a random sample of size 10 from a standard Normal distribution, 
+a logical vector indicating whether elements of the sample are greater than 0,
+a character vector of length 10,
+and a factor vector of length 10, with 3 different factor “levels”
+
+```{r}
+problem1_df = tibble(
+  vec_random = rnorm(10),
+  vec_logical = vec_random > 0,
+  vec_charac = c("Kelvin", "is", "my", "name", "and", "data", "science", "is",
+               "my", "game"),
+  vec_factor = factor(c("down", "middle", "up", "up", "up", "middle", "down", "middle", "up", "down"))
+)
+```
+
+#### To take the mean of each variable in problem1_df
+
+```{r}
+problem1_df
+mean(pull(problem1_df, vec_random))
+mean(pull(problem1_df, vec_logical))
+mean(pull(problem1_df, vec_charac))
+mean(pull(problem1_df, vec_factor))
+```
+
+Taking the mean of the numerical random sample vector (vec_random) and 
+logical vector (vec_logical) works. Taking the mean of the 
+character vector (vec_charac) and factor vector (vec_factor) does not work.
+For the functions that did not work, a warning message stating "argument is 
+not numeric or logical: returning NA" was returned.
+
+#### To convert the variables in problem1_df to numeric
+
+```{r numeric_convert, results = FALSE, warning = FALSE}
+as.numeric(pull(problem1_df, vec_logical))
+as.numeric(pull(problem1_df, vec_charac))
+as.numeric(pull(problem1_df, vec_factor))
+```
+
+Converting the logical vector to a numeric vector with 0's and 1's works,
+thus explaining our ability to obtain a mean for this. This happens 
+as the logical vector is outputting TRUE or FALSE, which may be converted
+converted to 0's and 1's. 
+
+Converting the factor vector to a numeric vector with 1, 2, and 3 works.This
+is because the software recognizes the factor vector has three levels and assigns 
+each level a number.This reason does not account for a mean not being produced for 
+the factor vector which perhaps may be due to a mean value perhaps not being a 
+good statistic to describe all three levels. 
+
+Converting the character vector to a numeric vector does not work. It also returns 
+an NA value.This is as there is no underlying numeric integer to represent the 
+character vector. This accounts for a mean not being generated for the character 
+vector, as the character vector can not be converted to a numeric format from which
+a mean may be calculated.
+
+## Question 2
+
+The following code loads the penguins dataset, includes a description 
+of the penguins dataset, and provides a scatterplot of the data.
+
+```{r}
+data("penguins", package = "palmerpenguins")
+flipper_mean = mean(pull(penguins,flipper_length_mm), na.rm = TRUE)
+```
+
+#### Description of Penguin Dataset
+
+Below we describe the dataset including names, 
+the size of the dataset, and the mean flipper length.
+
+
+The data in this dataset includes `r colnames(penguins)`. The size of dataset is `r nrow(penguins) * ncol(penguins)`. The mean flipper length is `r flipper_mean`.
+
+#### Scatterplot of Penguin Dataset
+
+```{r}
+ggplot(penguins, aes(x = bill_length_mm, y = flipper_length_mm, color = species)) + geom_point()
+ggsave("scatter_plot.pdf", height = 4, width = 6)
+```
+
