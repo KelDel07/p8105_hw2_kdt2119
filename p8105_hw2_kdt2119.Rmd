@@ -1,0 +1,22 @@
+---
+title: "Homework 2"
+author: "Kelvin Delali Tamakloe"
+date: 10/09/2021
+output: github_document
+---
+
+```{r setup, echo = FALSE, message = FALSE}
+library(tidyverse)
+library(readxl)
+```
+## Question 1
+
+#### Import data
+
+```{r trash}
+trashwheel_df = read_excel("Trash-Wheel-Collection-Totals-7-2020-2.xlsx", 
+     sheet = 1, range = "A2:N534")
+trashwheel_df = janitor::clean_names(trashwheel_df)
+trashwheel_df = drop_na(trashwheel_df, dumpster)
+trashwheel_df = round(trashwheel_df$sports_balls, 0)
+```
