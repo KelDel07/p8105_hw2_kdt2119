@@ -51,3 +51,70 @@ The total number of observations in the precipitation data set is `r nrow(precip
 
 
 
+# Question 2
+
+## Reading and cleaning the pols-month.csv file
+
+```{r pols, message = FALSE}
+polsmonth_df = 
+  read_csv("pols-month.csv") %>% 
+  janitor::clean_names() %>%
+  
+  separate(mon,into = c("year","month","day"),sep = "-") %>%
+  pivot_longer(c(prez_gop,prez_dem), names_prefix = "prez_", names_to = "president") %>% 
+  filter(value > 0) %>%
+  
+  select(-day, -value) %>% 
+  
+  mutate(year = as.integer(year), month = as.integer(month), month = month.name[month]) %>% 
+  arrange(year, month)
+
+```
+
+## Reading and cleaning the snp.csv file
+
+```{r snp, message = FALSE}
+snp_df = 
+  read_csv("snp.csv") %>% 
+  janitor::clean_names() %>%
+  
+  separate(date,into = c("month","day","year"),sep = "/") %>%
+  mutate(year = as.integer(year), year = ifelse(year > 21, 1900 + year, 2000 + year), month = as.integer(month), month = month.name[month]) %>% 
+  
+  select(-day) %>% 
+  select(year, month, close) %>% 
+  
+  arrange(year, month)
+
+```
+
+## Reading and cleaning the unemployment.csv file
+
+```{r unemploy, message = FALSE}
+unemploy_df = 
+  read_csv("unemployment.csv") %>% 
+  janitor::clean_names() %>%
+  pivot_longer(c(jan:dec),
+    names_to = "month", 
+    values_to = "unemployment") %>%
+  mutate(year = as.integer(year),
+    month = recode(month, "jan" = "January", "feb" = "February", "mar" = "March", "apr" = "April", "may" = "May", "jun" = "June", "jul" = "July", "aug" = "August", "sept" = "September", "oct" = "October", "nov" = "November", "dec" = "December")) %>% 
+  arrange(year, month)
+
+```
+
+## Merge and describe data
+```{r merge, message = FALSE}
+ans_merge_df =  left_join(polsmonth_df, snp_df, by = c("year", "month"))
+
+ans_final_df = left_join(ans_merge_df, unemploy_df, by = c("year", "month"))
+
+```
+
+The polsmonth_df dataset contains `r nrow(polsmonth_df)` observations of `r ncol(polsmonth_df)` variables, that describe the national number of democratic and republican politicians at various points in time.
+
+The snp_df dataset contains `r nrow(snp_df)` observations of `r ncol(snp_df)` variables regarding Standard & Poor’s stock market index (S&P), 
+
+The merged dataset, ans_final_df, contains `r nrow(ans_final_df)` observations of `r ncol(ans_final_df)` variables. with a range of years from `r  min(pull(ans_final_df, year))` to `r  max(pull(ans_final_df, year))`. Some key variables include `r names(ans_final_df %>% select(c(1, 9, 10, 11)))`. 
+
+
