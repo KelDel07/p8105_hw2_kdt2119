@@ -103,7 +103,7 @@ unemploy_df =
 
 ```
 
-## Merge and describe data
+## Merging and describing data
 ```{r merge, message = FALSE}
 ans_merge_df =  left_join(polsmonth_df, snp_df, by = c("year", "month"))
 
@@ -117,4 +117,65 @@ The snp_df dataset contains `r nrow(snp_df)` observations of `r ncol(snp_df)` va
 
 The merged dataset, ans_final_df, contains `r nrow(ans_final_df)` observations of `r ncol(ans_final_df)` variables. with a range of years from `r  min(pull(ans_final_df, year))` to `r  max(pull(ans_final_df, year))`. Some key variables include `r names(ans_final_df %>% select(c(1, 9, 10, 11)))`. 
 
+
+# Question 3
+
+## Read and clean the NYC open data on Popular_Baby_names.csv
+
+The data need to be cleaned in the ethnicity column because there are coded records like **"BLACK NON HISP" and "ASIAN AND PACIFIC ISLANDER."** It is also noted that in certain rows, **HISPANIC** is coded as **HISP**. A consistent coding pattern needs to be created within the dataset
+
+
+```{r names, message = FALSE}
+child_names_df = 
+  read_csv("Popular_Baby_Names.csv") %>% 
+  janitor::clean_names() %>% 
+  mutate(childs_first_name = str_to_title(childs_first_name),    
+         ethnicity = recode(ethnicity,
+    "ASIAN AND PACI" = "ASIAN AND PACIFIC ISLANDER",
+    "BLACK NON HISP" = "BLACK NON HISPANIC", 
+    "WHITE NON HISP" = "WHITE NON HISPANIC")) %>%
+  distinct()
+```
+
+
+## Baby Name Popularity Ocer Time
+
+The code below will produce a well-structured, reader-friendly table showing the rank in popularity of the name “Olivia” as a female baby name over time.
+
+
+```{r popoliv, message = FALSE}
+popoliv_df = 
+  filter(child_names_df, childs_first_name == "Olivia" & gender == "FEMALE") %>% 
+  select(year_of_birth, ethnicity, rank) %>%
+    pivot_wider(names_from = "year_of_birth", values_from = "rank")
+knitr::kable(popoliv_df)
+```
+
+The code below will produce a well-structured, reader-friendly table showing the rank in popularity of the most popular name as a male baby name over time.
+
+
+```{r male, message = FALSE}
+male_df = 
+  filter(child_names_df, gender == "MALE" & rank == 1) %>% 
+  select(year_of_birth, ethnicity, childs_first_name) %>%
+    pivot_wider(names_from = "year_of_birth",
+      values_from = "childs_first_name")
+knitr::kable(male_df)
+
+```
+
+## Scatter plot 
+The code below will produce a scatter plot showing the number of children with a name (y axis) against the rank in popularity of that name (x axis), for male, white, non hispanic children born
+in 2016.
+
+```{r scatterplot, message = FALSE}
+scatter_df = 
+  filter(child_names_df,
+    gender == "MALE",
+    ethnicity == "WHITE NON HISPANIC",
+    year_of_birth == 2016)
+
+
+ggplot(scatter_df, aes(x = rank, y = count)) + geom_point()
+```
 
