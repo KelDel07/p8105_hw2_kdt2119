@@ -10,9 +10,9 @@ library(readxl)
 
 ```
 
-# Problem 1
+## Problem 1
 
-## Importing, reading and cleaning Mr.Trash Wheel sheet
+#### Importing, reading and cleaning Mr.Trash Wheel sheet
 
 The code below will read the sheet of interest in the dataset, omit non-data entries
 and rows that do not include dumpster-specific data, and round the number of sports
